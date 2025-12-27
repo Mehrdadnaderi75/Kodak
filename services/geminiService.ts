@@ -1,8 +1,13 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
+const getApiKey = () => {
+  return (typeof process !== 'undefined' && process.env?.API_KEY) || "";
+};
+
 export const getLetterEducation = async (letter: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({

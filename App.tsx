@@ -12,7 +12,6 @@ const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>(AppMode.GRID);
   const [progress, setProgress] = useState(getProgress());
 
-  // Update progress state whenever we return to the grid or finish a task
   const refreshProgress = useCallback(() => {
     setProgress(getProgress());
   }, []);
@@ -41,7 +40,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fefce8] text-right flex flex-col selection:bg-blue-200" dir="rtl">
-      {/* Dynamic Header */}
+      {/* Header */}
       <header className="bg-blue-600 text-white py-4 px-6 shadow-xl sticky top-0 z-50 transition-all border-b-4 border-blue-700">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div 
@@ -145,7 +144,6 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer Branding */}
       <footer className="py-8 text-center text-gray-400 text-xs md:text-sm border-t border-gray-200 mt-auto bg-white/30 backdrop-blur-sm">
         <p className="font-bold flex items-center justify-center gap-2">
           ساخته شده با <span className="text-red-400 animate-pulse">❤️</span> برای شکوفایی خلاقیت کودکان
@@ -153,7 +151,6 @@ const App: React.FC = () => {
         <p className="opacity-60 mt-1">قدرت گرفته از هوش مصنوعی جمینای</p>
       </footer>
 
-      {/* Floating Action Button for Mobile */}
       {mode === AppMode.GRID && (
         <div className="fixed bottom-6 left-6 z-50 sm:hidden">
            <button 
