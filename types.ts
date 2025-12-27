@@ -20,4 +20,6 @@ export enum AppMode {
 
 export interface ProgressData {
   completedLetters: string[];
+  lastAccessed?: string;
+  starsCount: number;
 }

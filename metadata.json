@@ -1,7 +1,19 @@
 {
-  "name": "الفبای شادی - آموزش بازی‌محور",
-  "description": "یک اپلیکیشن تعاملی برای آموزش الفبای فارسی به کودکان ۳ تا ۴ سال با استفاده از بازی، نقاشی و هوش مصنوعی جمینای.",
+  "name": "الفبای شادی",
+  "short_name": "الفبا",
+  "description": "آموزش هوشمند و بازی‌محور الفبای فارسی برای خردسالان",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fefce8",
+  "theme_color": "#3b82f6",
   "requestFramePermissions": [
     "microphone"
+  ],
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3532/3532845.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }

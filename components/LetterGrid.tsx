@@ -16,18 +16,18 @@ const LetterGrid: React.FC<LetterGridProps> = ({ onSelect }) => {
   };
 
   return (
-    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 p-4">
+    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4 p-6">
       {PERSIAN_ALPHABET.map((letter) => {
         const completed = isLetterComplete(letter.char);
         return (
           <button
             key={letter.char}
             onClick={() => handleClick(letter)}
-            className={`${letter.color} aspect-square rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-lg hover:scale-105 transition-transform active:scale-95 border-b-4 border-black/20 relative`}
+            className={`${letter.color} aspect-square rounded-3xl flex items-center justify-center text-3xl md:text-4xl font-black text-white shadow-[0_8px_0_rgba(0,0,0,0.1)] hover:shadow-[0_4px_0_rgba(0,0,0,0.1)] hover:translate-y-[4px] active:translate-y-[6px] active:shadow-none transition-all relative border-2 border-white/20`}
           >
             {letter.char}
             {completed && (
-              <div className="absolute -top-1 -right-1 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow-sm border-2 border-white">
+              <div className="absolute -top-2 -right-2 bg-green-500 rounded-full w-7 h-7 flex items-center justify-center text-xs shadow-lg border-2 border-white animate-bounce">
                 ✅
               </div>
             )}
