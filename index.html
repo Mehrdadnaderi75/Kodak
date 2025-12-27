@@ -39,11 +39,19 @@
       }
       .loader-content {
         text-align: center;
-        animation: pulse 2s infinite ease-in-out;
       }
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+      .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid rgba(255, 255, 255, 0.3);
+        border-top: 6px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1.5rem;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       .error-overlay {
         position: fixed;
@@ -54,17 +62,22 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 2rem;
         text-align: center;
       }
     </style>
 
+    <!-- تعریف متغیر محیطی قبل از هر اسکریپت دیگر برای جلوگیری از ReferenceError -->
+    <script>
+      window.process = { env: { API_KEY: "" } };
+    </script>
+
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react": "https://esm.sh/react@19.0.0?bundle",
+    "react-dom": "https://esm.sh/react-dom@19.0.0?bundle",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client?bundle",
     "@google/genai": "https://esm.sh/@google/genai@0.21.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
@@ -73,41 +86,49 @@
 </script>
   </head>
   <body>
-    <!-- لودر اصلی -->
+    <!-- لودر اولیه -->
     <div id="app-loader">
-      <div class="loader-content">
-        <div class="w-20 h-20 border-8 border-white/30 border-t-white rounded-full animate-spin mb-6"></div>
+      <div class="loader-content flex flex-col items-center">
+        <div class="spinner"></div>
         <h1 class="text-3xl font-black tracking-tight">الفبای شادی</h1>
-        <p className="mt-2 opacity-80">در حال چیدن بازی...</p>
+        <p class="mt-2 opacity-80 font-bold">در حال بارگذاری دنیای رنگی...</p>
       </div>
     </div>
 
-    <!-- لایه خطا برای مواقع بحرانی -->
+    <!-- لایه نمایش خطا -->
     <div id="error-display" class="error-overlay">
-      <h2 class="text-2xl font-bold text-red-600 mb-4">اوه! مشکلی پیش اومد</h2>
-      <p id="error-message" class="text-gray-600 mb-6"></p>
-      <button onclick="location.reload()" class="bg-blue-500 text-white px-6 py-2 rounded-full font-bold">تلاش دوباره</button>
+      <div class="text-5xl mb-4">⚠️</div>
+      <h2 class="text-2xl font-black text-red-600 mb-4">مشکلی در اجرای برنامه پیش آمد</h2>
+      <pre id="error-message" class="bg-gray-100 p-4 rounded-xl text-xs overflow-auto max-w-full mb-6 font-mono text-left" dir="ltr"></pre>
+      <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-black shadow-lg active:scale-95 transition-transform">تلاش دوباره</button>
     </div>
 
     <div id="root"></div>
 
     <script type="module">
-      // جلوگیری از کراش به دلیل نبود process در مرورگر
-      if (typeof window.process === 'undefined') {
-        window.process = { env: { API_KEY: "" } };
+      // مدیریت خطاهای لود اسکریپت
+      window.addEventListener('error', function(e) {
+        if (e.target.tagName === 'SCRIPT') {
+          showError("خطا در بارگذاری فایل‌های اصلی برنامه. لطفاً اتصال اینترنت خود را چک کنید.");
+        }
+      }, true);
+
+      function showError(msg) {
+        const errDisplay = document.getElementById('error-display');
+        const errMsg = document.getElementById('error-message');
+        if (errDisplay && errMsg) {
+          errDisplay.style.display = 'flex';
+          errMsg.innerText = msg;
+        }
       }
 
-      // مدیریت خطاهای ران‌تایم
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        console.error('Global Error:', msg, error);
-        return false;
-      };
+      // شروع بارگذاری برنامه
+      import("./index.tsx").catch(err => {
+        console.error("Failed to load index.tsx:", err);
+        showError(err.message + "\\n\\n" + err.stack);
+      });
 
-      import "./index.tsx";
-    </script>
-    
-    <script>
-      // حذف لودر فقط بعد از رندر شدن کامل توسط React (یا حداکثر ۵ ثانیه)
+      // تابع برای حذف لودر که از داخل React صدا زده می‌شود
       window.hideMainLoader = function() {
         const loader = document.getElementById('app-loader');
         if (loader) {
@@ -116,8 +137,15 @@
           setTimeout(() => loader.remove(), 500);
         }
       };
-      // زمان‌بندی احتیاطی
-      setTimeout(window.hideMainLoader, 5000);
+
+      // زمان‌بندی احتیاطی برای حذف لودر اگر React دیر لود شد
+      setTimeout(() => {
+        const loader = document.getElementById('app-loader');
+        if (loader && loader.style.opacity !== '0') {
+           console.warn("Loader timed out. Forcing removal.");
+           window.hideMainLoader();
+        }
+      }, 8000);
     </script>
   </body>
 </html>
