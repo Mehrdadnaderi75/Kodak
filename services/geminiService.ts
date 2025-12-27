@@ -1,21 +1,17 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const getApiKey = () => {
-  return (typeof process !== 'undefined' && process.env?.API_KEY) || "";
-};
-
 export const getLetterEducation = async (letter: string) => {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `شما یک مربی مهدکودک هستید. برای حرف "${letter}" الفبای فارسی:
-      ۱. سه کلمه ساده که با این حرف شروع شوند و برای کودک ۳ ساله قابل درک باشند ارائه دهید.
-      ۲. یک داستان بسیار کوتاه و خنده‌دار (حداکثر ۲۰ کلمه) درباره این حرف بگویید.
-      پاسخ را فقط به صورت JSON با ساختار { "words": ["word1", "word2", "word3"], "story": "..." } برگردانید.`,
+      contents: `شما یک مربی مهربان مهدکودک هستید. برای حرف "${letter}" از الفبای فارسی:
+      ۱. سه کلمه خیلی ساده که با این حرف شروع شوند و برای کودک ۳ ساله ملموس باشند (مثل حیوانات یا میوه‌ها).
+      ۲. یک داستان بسیار کوتاه (حداکثر ۱۵ کلمه) و شاد درباره این حرف.
+      پاسخ را دقیقاً با این ساختار JSON برگردانید:
+      { "words": ["کلمه۱", "کلمه۲", "کلمه۳"], "story": "داستان کوتاه..." }`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -24,11 +20,11 @@ export const getLetterEducation = async (letter: string) => {
             words: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
-              description: 'Three simple Persian words starting with the letter.',
+              description: 'Three simple words starting with the letter.',
             },
             story: {
               type: Type.STRING,
-              description: 'A very short funny story for kids.',
+              description: 'Short funny story for toddlers.',
             },
           },
           required: ["words", "story"],
@@ -38,7 +34,7 @@ export const getLetterEducation = async (letter: string) => {
 
     return JSON.parse(response.text || '{}');
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return { words: [], story: "اوه! دوست کوچولو، فعلاً قصه‌گوی ما خوابش برده." };
+    console.error("Gemini Content Error:", error);
+    return { words: [], story: "دوست من، بیا با هم کلمه‌های جدید یاد بگیریم!" };
   }
 };

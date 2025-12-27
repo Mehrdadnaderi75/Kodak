@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
-    <title>الفبای شادی | دنیای یادگیری و بازی</title>
-    <meta name="description" content="آموزش تعاملی و بازی‌محور الفبای فارسی برای کودکان." />
+    <title>الفبای شادی | آموزش هوشمند کودکان</title>
+    <meta name="description" content="آموزش تعاملی الفبای فارسی برای کودکان با استفاده از هوش مصنوعی." />
 
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3532/3532845.png" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,8 +23,9 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
         user-select: none;
-        -webkit-user-select: none;
+        touch-action: manipulation;
       }
       #app-loader {
         position: fixed;
@@ -36,24 +37,22 @@
         justify-content: center;
         z-index: 9999;
         color: white;
-      }
-      .loader-content {
-        text-align: center;
+        transition: opacity 0.5s ease-out;
       }
       .spinner {
-        width: 60px;
-        height: 60px;
-        border: 6px solid rgba(255, 255, 255, 0.3);
-        border-top: 6px solid #ffffff;
+        width: 70px;
+        height: 70px;
+        border: 8px solid rgba(255, 255, 255, 0.2);
+        border-top: 8px solid #ffffff;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 1.5rem;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 2rem;
       }
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-      .error-overlay {
+      #error-overlay {
         position: fixed;
         inset: 0;
         background: white;
@@ -67,17 +66,17 @@
       }
     </style>
 
-    <!-- تعریف متغیر محیطی قبل از هر اسکریپت دیگر برای جلوگیری از ReferenceError -->
     <script>
+      // Shim process.env for the browser environment
       window.process = { env: { API_KEY: "" } };
     </script>
 
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0?bundle",
-    "react-dom": "https://esm.sh/react-dom@19.0.0?bundle",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client?bundle",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@0.21.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
@@ -86,66 +85,47 @@
 </script>
   </head>
   <body>
-    <!-- لودر اولیه -->
     <div id="app-loader">
-      <div class="loader-content flex flex-col items-center">
-        <div class="spinner"></div>
-        <h1 class="text-3xl font-black tracking-tight">الفبای شادی</h1>
-        <p class="mt-2 opacity-80 font-bold">در حال بارگذاری دنیای رنگی...</p>
-      </div>
+      <div class="spinner"></div>
+      <h1 class="text-4xl font-black tracking-tight drop-shadow-lg">الفبای شادی</h1>
+      <p class="mt-3 opacity-90 font-bold text-lg">در حال آماده‌سازی بازی...</p>
     </div>
 
-    <!-- لایه نمایش خطا -->
-    <div id="error-display" class="error-overlay">
-      <div class="text-5xl mb-4">⚠️</div>
-      <h2 class="text-2xl font-black text-red-600 mb-4">مشکلی در اجرای برنامه پیش آمد</h2>
-      <pre id="error-message" class="bg-gray-100 p-4 rounded-xl text-xs overflow-auto max-w-full mb-6 font-mono text-left" dir="ltr"></pre>
-      <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-black shadow-lg active:scale-95 transition-transform">تلاش دوباره</button>
+    <div id="error-overlay">
+      <div class="text-6xl mb-6">🧸</div>
+      <h2 class="text-3xl font-black text-gray-800 mb-4">اوه! یک مشکل کوچولو پیش اومد</h2>
+      <p id="error-message" class="text-red-500 mb-8 font-mono bg-red-50 p-4 rounded-xl text-xs overflow-auto max-w-full text-left" dir="ltr"></p>
+      <button onclick="location.reload()" class="bg-blue-600 text-white px-10 py-4 rounded-3xl font-black shadow-xl active:scale-95 transition-all text-xl">دوباره امتحان کن</button>
     </div>
 
     <div id="root"></div>
 
-    <script type="module">
-      // مدیریت خطاهای لود اسکریپت
-      window.addEventListener('error', function(e) {
-        if (e.target.tagName === 'SCRIPT') {
-          showError("خطا در بارگذاری فایل‌های اصلی برنامه. لطفاً اتصال اینترنت خود را چک کنید.");
-        }
-      }, true);
+    <script type="module" src="./index.tsx"></script>
 
-      function showError(msg) {
-        const errDisplay = document.getElementById('error-display');
-        const errMsg = document.getElementById('error-message');
-        if (errDisplay && errMsg) {
-          errDisplay.style.display = 'flex';
-          errMsg.innerText = msg;
-        }
-      }
-
-      // شروع بارگذاری برنامه
-      import("./index.tsx").catch(err => {
-        console.error("Failed to load index.tsx:", err);
-        showError(err.message + "\\n\\n" + err.stack);
-      });
-
-      // تابع برای حذف لودر که از داخل React صدا زده می‌شود
-      window.hideMainLoader = function() {
+    <script>
+      window.hideAppLoader = function() {
         const loader = document.getElementById('app-loader');
         if (loader) {
-          loader.style.transition = 'opacity 0.5s ease-out';
           loader.style.opacity = '0';
           setTimeout(() => loader.remove(), 500);
         }
       };
-
-      // زمان‌بندی احتیاطی برای حذف لودر اگر React دیر لود شد
-      setTimeout(() => {
-        const loader = document.getElementById('app-loader');
-        if (loader && loader.style.opacity !== '0') {
-           console.warn("Loader timed out. Forcing removal.");
-           window.hideMainLoader();
+      
+      window.showAppError = function(err) {
+        const overlay = document.getElementById('error-overlay');
+        const display = document.getElementById('error-message');
+        if(overlay && display) {
+          overlay.style.display = 'flex';
+          display.innerText = err;
         }
-      }, 8000);
+      };
+
+      window.onerror = function(msg, url, line, col, error) {
+        window.showAppError(msg + (error ? "\n" + error.stack : ""));
+        return false;
+      };
+
+      setTimeout(window.hideAppLoader, 8000);
     </script>
   </body>
 </html>

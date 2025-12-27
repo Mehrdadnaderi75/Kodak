@@ -36,7 +36,7 @@ export const speak = async (text: string) => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: `تلفظ درست کلمه یا حرف زیر را با لحنی مهربان و شمرده بگو: ${text}` }] }],
+      contents: [{ parts: [{ text: `بسیار شمرده و مهربان بگو: ${text}` }] }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
@@ -48,7 +48,7 @@ export const speak = async (text: string) => {
     });
 
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio) throw new Error("No audio data received");
+    if (!base64Audio) return;
 
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
     const audioBuffer = await decodeAudioData(
@@ -63,6 +63,6 @@ export const speak = async (text: string) => {
     source.connect(audioContext.destination);
     source.start();
   } catch (error) {
-    console.error("TTS Error:", error);
+    console.error("Speech Service Error:", error);
   }
 };
